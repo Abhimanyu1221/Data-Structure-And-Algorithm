@@ -1,12 +1,19 @@
 class Solution:
-    def largestInteger(self, A: List[int], k: int) -> int:
-        f = [0] * 51
-        for x in A:
-            f[x] += 1
+    def largestInteger(self, nums: List[int], k: int) -> int:
+        n = len(nums)
+        freq = Counter(nums)
 
-        res, n = -1, len(A)
-        for i, c in enumerate(A):
-            if k == n or (f[c]==1 and (k==1 or not i or i+1==n)):
-                res = max(res, c)
+        if k == 1:
+            candidates = [x for x in freq if freq[x] == 1]
+            return max(candidates) if candidates else -1
 
-        return res
+        if k == n:
+            return max(nums)
+
+        candidates = []
+        if freq[nums[0]] == 1:
+            candidates.append(nums[0])
+        if freq[nums[-1]] == 1:
+            candidates.append(nums[-1])
+
+        return max(candidates) if candidates else -1
