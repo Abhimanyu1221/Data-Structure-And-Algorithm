@@ -1,40 +1,53 @@
 class Solution:
     def lexGreaterPermutation(self, s: str, target: str) -> str:
-        cnt = [0] * 26
+        freq = [0] * 26
 
         for ch in s:
-            cnt[ord(ch) - ord('a')] += 1
+            freq[ord(ch) - ord('a')] += 1
 
-        for ch in target:
-            cnt[ord(ch) - ord('a')] -= 1
+        n = len(s)
+        matched = 0
 
-        for i in range(len(target) - 1, -1, -1):
-            cur = ord(target[i]) - ord('a')
-            cnt[cur] += 1
+        # Match target as far as possible.
+        for i in range(n):
+            x = ord(target[i]) - ord('a')
 
-            # target[:i] cannot be formed.
-            if any(x < 0 for x in cnt):
-                continue
+            if freq[x] == 0:
+                # target[i] is unavailable.
+                # Try making the answer greater at this position.
+                for c in range(x + 1, 26):
+                    if freq[c] > 0:
+                        freq[c] -= 1
 
-            # Find the smallest character greater than target[i].
-            nxt = -1
-            for c in range(cur + 1, 26):
-                if cnt[c]:
-                    nxt = c
-                    break
+                        ans = target[:i] + chr(c + ord('a'))
 
-            if nxt == -1:
-                continue
+                        for j in range(26):
+                            ans += chr(j + ord('a')) * freq[j]
 
-            cnt[nxt] -= 1
+                        return ans
 
-            ans = list(target[:i])
-            ans.append(chr(nxt + ord('a')))
+                break
 
-            # Put the remaining characters in sorted order.
-            for c in range(26):
-                ans.extend(chr(c + ord('a')) * cnt[c])
+            freq[x] -= 1
+            matched += 1
 
-            return ''.join(ans)
+        # Backtrack only through characters that were actually matched.
+        for i in range(matched - 1, -1, -1):
+            x = ord(target[i]) - ord('a')
+
+            # Restore the character matched at position i.
+            freq[x] += 1
+
+            # Try the smallest character greater than target[i].
+            for c in range(x + 1, 26):
+                if freq[c] > 0:
+                    freq[c] -= 1
+
+                    ans = target[:i] + chr(c + ord('a'))
+
+                    for j in range(26):
+                        ans += chr(j + ord('a')) * freq[j]
+
+                    return ans
 
         return ""
